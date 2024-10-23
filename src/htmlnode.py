@@ -15,6 +15,8 @@ class HTMLNode():
     
 
     def props_to_html(self):
+        if self.props == None:
+            return ""
         return functools.reduce(
             lambda result, item: result + item[0] + "=\"" + item[1] + "\" ",
             self.props.items(),
