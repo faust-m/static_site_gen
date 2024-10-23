@@ -11,16 +11,16 @@ class HTMLNode():
 
     
     def to_html(self):
-        raise NotImplementedError("HTMLNode() does not implement this.")
+        raise NotImplementedError("HTMLNode() does not implement to_html()")
     
 
     def props_to_html(self):
         return functools.reduce(
-            lambda result, item: result + item[0] + "=" + item[1] + " ",
+            lambda result, item: result + item[0] + "=\"" + item[1] + "\" ",
             self.props.items(),
             " "
-        )
+        ).rstrip(" ")
     
     
     def __repr__(self):
-        return f"{__class__.__name__}({self.tag}, {self.value}, {self.children}, {self.props})"
+        return f'{self.__class__.__name__}({self.tag}, {self.value}, {self.children}, {self.props})'
