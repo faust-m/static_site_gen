@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 from leafnode import LeafNode
 
@@ -31,19 +32,86 @@ def text_node_to_html_node(text_node):
         
 
 
+def extract_markdown_images(text):
+    image_list = re.findall(r"!\[(.*?)\]\((.*?)\)", text)
+    return image_list
+
+
+
+def extract_markdown_links(text):
+    link_list = re.findall(r"(?<!!)\[(.*?)\]\((.*?)\)", text)
+    return link_list
+        
+
+
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
     for node in old_nodes:
-        if node.text_type != "text":
+        if node.text_type != TextType.TEXT.value:
             new_nodes.append(node)
+            continue
         node_texts = node.text.split(delimiter)
-        if len(node_texts) != 3:
+        if len(node_texts) % 2 == 0:
             raise Exception("Invalid Markdown text")
-        new_nodes.extend([
-                    TextNode(node_texts[0], TextType.TEXT),
-                    TextNode(node_texts[1], text_type),
-                    TextNode(node_texts[2], TextType.TEXT)
-        ])
+        for i in range(len(node_texts)):
+            if node_texts[i] == "":
+                continue
+            if i % 2 == 0:
+                new_nodes.append(TextNode(node_texts[i], TextType.TEXT))
+            else:
+                new_nodes.append(TextNode(node_texts[i], text_type))
+    return new_nodes
+
+
+
+def split_nodes_image(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT.value:
+            new_nodes.append(node)
+            continue
+        split_nodes = re.split(r"(!\[.*?\]\(.*?\))", node.text)
+        for split_node in split_nodes:
+            if split_node == "":
+                continue
+            image_data = extract_markdown_images(split_node)
+            if len(image_data) == 0:
+                new_nodes.append(TextNode(split_node, TextType.TEXT))
+            else:
+                new_nodes.append(TextNode(image_data[0][0], TextType.IMAGE, image_data[0][1]))
+    return new_nodes
+
+
+
+def split_nodes_link(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT.value:
+            new_nodes.append(node)
+            continue
+        split_nodes = re.split(r"(?<!!)(\[.*?\]\(.*?\))", node.text)
+        for split_node in split_nodes:
+            if split_node == "":
+                continue
+            link_data = extract_markdown_links(split_node)
+            if len(link_data) == 0:
+                new_nodes.append(TextNode(split_node, TextType.TEXT))
+            else:
+                new_nodes.append(TextNode(link_data[0][0], TextType.LINK, link_data[0][1]))
+    return new_nodes
+
+
+
+def text_to_textnodes(text):
+    node = TextType(
+        text,
+        TextType.TEXT
+    )
+    new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+    new_nodes = split_nodes_delimiter([new_nodes], "*", TextType.ITALIC)
+    new_nodes = split_nodes_delimiter([new_nodes], "`", TextType.CODE)
+    new_nodes = split_nodes_image([new_nodes])
+    new_nodes = split_nodes_link([new_nodes])
     return new_nodes
 
 
