@@ -67,7 +67,7 @@ class TestTextNode(unittest.TestCase):
         node = TextNode("This is text with a `code block` word", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
         expected = ["TextNode(This is text with a , text, None)", "TextNode(code block, code, None)", "TextNode( word, text, None)"]
-        actual = [new_nodes[0].__repr__(), new_nodes[1].__repr__(), new_nodes[2].__repr__()]
+        actual = list(map(lambda n: n.__repr__(), new_nodes))
         self.assertEqual(actual, expected)
 
 
@@ -75,7 +75,7 @@ class TestTextNode(unittest.TestCase):
         node = TextNode("This is text with a **bold** word", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
         expected = ["TextNode(This is text with a , text, None)", "TextNode(bold, bold, None)", "TextNode( word, text, None)"]
-        actual = [new_nodes[0].__repr__(), new_nodes[1].__repr__(), new_nodes[2].__repr__()]
+        actual = list(map(lambda n: n.__repr__(), new_nodes))
         self.assertEqual(actual, expected)
 
 
@@ -83,16 +83,13 @@ class TestTextNode(unittest.TestCase):
         node = TextNode("This is text with a *italic* word", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "*", TextType.ITALIC)
         expected = ["TextNode(This is text with a , text, None)", "TextNode(italic, italic, None)", "TextNode( word, text, None)"]
-        actual = [new_nodes[0].__repr__(), new_nodes[1].__repr__(), new_nodes[2].__repr__()]
+        actual = list(map(lambda n: n.__repr__(), new_nodes))
         self.assertEqual(actual, expected)
 
 
     def test_split_nodes_multiple(self):
         node = TextNode("This is text with an *italic* word and a **bold** word", TextType.TEXT)
-        new_nodes = split_nodes_delimiter([node], "*", TextType.ITALIC)
-        print(f"new_nodes 1: {new_nodes}")
-        new_nodes = split_nodes_delimiter([new_nodes], "**", TextType.BOLD)
-        print(f"new nodes 2: {new_nodes}")
+        new_nodes = split_nodes_delimiter(split_nodes_delimiter([node], "**", TextType.BOLD), "*", TextType.ITALIC)
         expected = ["TextNode(This is text with an , text, None)", "TextNode(italic, italic, None)", "TextNode( word and a , text, None)", "TextNode(bold, bold, None)", "TextNode( word, text, None)"]
         actual = list(map(lambda n: n.__repr__(), new_nodes))
         self.assertEqual(actual, expected)
@@ -101,6 +98,16 @@ class TestTextNode(unittest.TestCase):
     def test_split_nodes_except(self):
         node = TextNode("This is text with a `code block word", TextType.TEXT)
         self.assertRaises(Exception, split_nodes_delimiter, [node], "`", TextType.CODE)
+
+
+    def test_split_nodes_except_first(self):
+        node = TextNode("This is text with an *italic word and a **bold** word", TextType.TEXT)
+        self.assertRaises(Exception, split_nodes_delimiter, [node], "*", TextType.ITALIC)
+
+
+    def test_split_nodes_except_second(self):
+        node = TextNode("This is text with an *italic* word and a **bold* word", TextType.TEXT)
+        self.assertRaises(Exception, split_nodes_delimiter, [node], "**", TextType.BOLD)
 
 
 
