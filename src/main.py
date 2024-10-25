@@ -4,13 +4,11 @@ import shutil
 
 def copy_contents(src_dir, dst_dir):
     if os.path.exists(dst_dir):
-        shutil.rmtree(dst_dir)
+        shutil.rmtree(dst_dir)  
     else:
-        os.mkdir("./public/")
-    files = os.listdir("./static/")
+        os.mkdir(dst_dir)
+    print(os.listdir(src_dir))
     
-    
-
 
 
 def main():
