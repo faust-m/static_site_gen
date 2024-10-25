@@ -292,6 +292,20 @@ class TestTextNode(unittest.TestCase):
         ]
         self.assertEqual(new_nodes, expected)
 
+    
+    def test_text_to_textnodes_no_bold(self):
+        text = "This is *italic* text with some `code` and a [link](https://www.google.com)"
+        new_nodes = text_to_textnodes(text)
+        expected = [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" text with some ", TextType.TEXT),
+            TextNode("code", TextType.CODE),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "https://www.google.com"),
+        ]
+        self.assertEqual(new_nodes, expected)
+
 
 
 if __name__ == "__main__":
