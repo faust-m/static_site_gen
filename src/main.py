@@ -1,7 +1,20 @@
-from textnode import TextNode, TextType
+import os
+import shutil
+
+
+def copy_contents(src_dir, dst_dir):
+    if os.path.exists(dst_dir):
+        shutil.rmtree(dst_dir)
+    else:
+        os.mkdir("./public/")
+    files = os.listdir("./static/")
+    
+    
+
+
 
 def main():
-    node = TextNode("This is a text node", TextType.BOLD, "https://www.boot.dev")
+    copy_contents("./static/", "./public/")
 
 
 
