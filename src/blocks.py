@@ -73,12 +73,12 @@ def markdown_to_html_node(markdown):
                 h_value = len(block) - len(block.lstrip("#"))
                 children_nodes.append(ParentNode(f"h{h_value}", text_to_children(block.lstrip("# "))))
             case "code":
-                children_nodes.append(ParentNode("pre", text_to_children(block)))
+                children_nodes.append(ParentNode("pre", text_to_children(block.strip())))
             case "quote":
                 lines = block.splitlines(keepends=True)
                 lines = [line.removeprefix(">") for line in lines]
                 block = functools.reduce(lambda acc, line: acc + line, lines, "")
-                children_nodes.append(ParentNode("blockquote", text_to_children(block)))
+                children_nodes.append(ParentNode("blockquote", text_to_children(block.strip())))
             case "ordered_list":
                 items = block.splitlines()
                 items = [item.lstrip("1234567890. ") for item in items]
